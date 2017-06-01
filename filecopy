@@ -1,0 +1,10 @@
+#!/bin/bash
+for server in `cat hostname`
+do
+    echo $server
+    #copy local 40-sensage.conf file to remote host
+    cat 40-sensage.conf | ssh -o "BatchMode yes" -q $server "sudo /usr/localcw/bin/eksh -c 'cat - > /etc/rsyslog.d/40-sensage.conf'"
+    #recycle rsyslog service remotely 
+    ssh -o "BatchMode yes" -q $server "sudo /usr/localcw/bin/eksh -c 'service rsyslog restart'"
+    echo -en '\n'
+done
