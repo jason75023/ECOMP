@@ -3,7 +3,7 @@
 #Logging(sensage): config files checking: 40-sensage.conf,ksh_audit,sectools.conf
 #
 #
-    #i=$1
+    #prompt for hostname for sensage config checking 
     read -p "Enter hostname > " i
     #print out hostname
     echo "*** $i ***"
@@ -14,9 +14,10 @@
     then
       echo ">Contents of /etc/rsyslog.d/40-sensage.conf:"
       ssh -q $i 'sudo /usr/localcw/bin/eksh -c "cat /etc/rsyslog.d/40-sensage.conf"'
+      #get sensage loghost remotely and store in local variable
       loghost=$(ssh -q $i "sed -n 's/.*\(loghost.*\)/\1/p' /etc/rsyslog.d/40-sensage.conf")
       echo $loghost
-      #ssh -q $i "echo $loghost"
+      #trigger ping test against loghost on remote host 
       ssh -t -q $i "ping -c 3 $loghost"
     else
       echo ">/etc/rsyslog.d/40-sensage.conf not exist"
