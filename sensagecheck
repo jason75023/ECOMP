@@ -1,0 +1,45 @@
+#!/bin/bash
+#
+#Logging(sensage): config files checking: 40-sensage.conf,ksh_audit,sectools.conf
+#
+#
+    #i=$1
+    read -p "Enter hostname > " i
+    #print out hostname
+    echo "*** $i ***"
+
+    #test file: 40-sensage.conf
+    ssh -q -o BatchMode=yes -o StrictHostKeyChecking=no $i [[ -f /etc/rsyslog.d/40-sensage.conf ]]
+    if [ $? -eq 0 ]
+    then
+      echo ">Contents of /etc/rsyslog.d/40-sensage.conf:"
+      ssh -q $i 'sudo /usr/localcw/bin/eksh -c "cat /etc/rsyslog.d/40-sensage.conf"'
+      loghost=$(ssh -q $i "sed -n 's/.*\(loghost.*\)/\1/p' /etc/rsyslog.d/40-sensage.conf")
+      echo $loghost
+      #ssh -q $i "echo $loghost"
+      ssh -t -q $i "ping -c 3 $loghost"
+    else
+      echo ">/etc/rsyslog.d/40-sensage.conf not exist"
+    fi
+
+    #test file: ksh_audit
+    ssh -q $i [[ -f /etc/ksh_audit ]]
+    if [ $? -eq 0 ]
+    then
+      echo ">Contents of /etc/ksh_audit:"
+      ssh -q $i 'sudo /usr/localcw/bin/eksh -c "cat /etc/ksh_audit"'
+    else
+      echo ">/etc/ksh_audit not exist"
+    fi
+
+    #test file: sectools.conf only allow root access
+    ssh -q $i "sudo /usr/localcw/bin/eksh -c 'test -f /usr/localcw/opt/security/etc/sectools.conf'"
+    if [ $? -eq 0 ]
+    then
+      echo ">Contents of /usr/localcw/opt/security/etc/sectools.conf:"
+      ssh -q $i 'sudo /usr/localcw/bin/eksh -c "cat /usr/localcw/opt/security/etc/sectools.conf"'
+    else
+      echo ">/usr/localcw/opt/security/etc/sectools.conf not exist"
+    fi
+
+   echo -en '\n'
